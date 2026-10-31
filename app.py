@@ -1,28 +1,77 @@
 import pandas as pd
-import requests
 import streamlit as st
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Rendimientos Stablecoins & Fintechs Argentina",
+    page_title="Rendimientos Stablecoins Argentina",
     page_icon="📈",
     layout="centered",
 )
 
-st.title("📊 Ranking de Rentabilidad Stablecoins en Argentina")
+st.title("📊 Ranking General de Rentabilidad (Fintechs Argentina)")
 st.caption(
-    "Comparativa de APY en Belo, Lemon, Bitso, SatoshiTango, Binance, Bitget, BingX, Nexo y YouHodler"
+    "Comparativa de APY en Belo, Lemon, Buenbit, Ripio, Decrypto, Bitso, SatoshiTango, Binance, Bitget, BingX, Nexo y YouHodler"
 )
 
 
 @st.cache_data(ttl=3600)
 def obtener_datos_completos():
-    """Consolida las tasas de rendimiento de las fintech y exchanges
+    """Consolida las tasas de rendimiento (APY) de las plataformas locales e
 
-    locales e internacionales que operan con pesos o dólares en Argentina.
+    internacionales que operan en Argentina.
     """
     datos = [
-        # --- FINTECHS Y EXCHANGES LOCALES (ARS / ARGt / USD) ---
+        # --- NUEVAS INCORPORACIONES (BUENBIT, RIPIO, DECRYPTO) ---
+        {
+            "Plataforma": "Buenbit",
+            "Stablecoin": "USDT",
+            "APY (%)": 8.5,
+            "Operación": "Pesos (ARS) / USD",
+            "Red / Info": "Buenbit Earn Flexible",
+        },
+        {
+            "Plataforma": "Buenbit",
+            "Stablecoin": "USDC",
+            "APY (%)": 8.0,
+            "Operación": "Pesos (ARS) / USD",
+            "Red / Info": "Buenbit Earn Flexible",
+        },
+        {
+            "Plataforma": "Buenbit",
+            "Stablecoin": "nuARS",
+            "APY (%)": 25.0,
+            "Operación": "Pesos (ARS)",
+            "Red / Info": "Peso Digital NuARS",
+        },
+        {
+            "Plataforma": "Ripio",
+            "Stablecoin": "UXD",
+            "APY (%)": 10.0,
+            "Operación": "Pesos (ARS)",
+            "Red / Info": "Ripio Earn (Criptodólar UXD)",
+        },
+        {
+            "Plataforma": "Ripio",
+            "Stablecoin": "USDT",
+            "APY (%)": 6.0,
+            "Operación": "Pesos (ARS) / USD",
+            "Red / Info": "Ripio Earn Flexible",
+        },
+        {
+            "Plataforma": "Decrypto",
+            "Stablecoin": "USDT",
+            "APY (%)": 7.5,
+            "Operación": "Pesos (ARS) / USD",
+            "Red / Info": "Inversión Decrypto",
+        },
+        {
+            "Plataforma": "Decrypto",
+            "Stablecoin": "USDC",
+            "APY (%)": 7.0,
+            "Operación": "Pesos (ARS) / USD",
+            "Red / Info": "Inversión Decrypto",
+        },
+        # --- FINTECHS Y EXCHANGES LOCALES ---
         {
             "Plataforma": "Belo",
             "Stablecoin": "ARGt",
@@ -107,7 +156,14 @@ def obtener_datos_completos():
             "Operación": "Pesos / USD",
             "Red / Info": "Rendimientos Stg (USDT)",
         },
-        # --- EXCHANGES GLOBAL CON P2P / ENTRADA EN PESOS ---
+        # --- EXCHANGES GLOBAL CON P2P / ARS ---
+        {
+            "Plataforma": "Bitget",
+            "Stablecoin": "USDT",
+            "APY (%)": 9.0,
+            "Operación": "P2P Pesos (ARS)",
+            "Red / Info": "Bitget Savings Flexible",
+        },
         {
             "Plataforma": "Binance",
             "Stablecoin": "USDT",
@@ -116,48 +172,13 @@ def obtener_datos_completos():
             "Red / Info": "Binance Simple Earn (USDT)",
         },
         {
-            "Plataforma": "Binance",
-            "Stablecoin": "USDC",
-            "APY (%)": 6.0,
-            "Operación": "P2P Pesos (ARS)",
-            "Red / Info": "Binance Simple Earn (USDC)",
-        },
-        {
-            "Plataforma": "Binance",
-            "Stablecoin": "FDUSD",
-            "APY (%)": 7.5,
-            "Operación": "P2P Pesos (ARS)",
-            "Red / Info": "Binance Simple Earn (FDUSD)",
-        },
-        {
-            "Plataforma": "Bitget",
-            "Stablecoin": "USDT",
-            "APY (%)": 9.0,
-            "Operación": "P2P Pesos (ARS)",
-            "Red / Info": "Bitget Savings Flexible",
-        },
-        {
-            "Plataforma": "Bitget",
-            "Stablecoin": "USDC",
-            "APY (%)": 5.5,
-            "Operación": "P2P Pesos (ARS)",
-            "Red / Info": "Bitget Savings Flexible",
-        },
-        {
             "Plataforma": "BingX",
             "Stablecoin": "USDT",
             "APY (%)": 8.0,
             "Operación": "P2P Pesos (ARS)",
             "Red / Info": "BingX Wealth Flexible",
         },
-        {
-            "Plataforma": "BingX",
-            "Stablecoin": "USDC",
-            "APY (%)": 5.0,
-            "Operación": "P2P Pesos (ARS)",
-            "Red / Info": "BingX Wealth Flexible",
-        },
-        # --- PLATAFORMAS INTERNACIONALES DE RENDIMIENTO ---
+        # --- PLATAFORMAS INTERNACIONALES ---
         {
             "Plataforma": "YouHodler",
             "Stablecoin": "USDT",
@@ -166,30 +187,9 @@ def obtener_datos_completos():
             "Red / Info": "Savings Account",
         },
         {
-            "Plataforma": "YouHodler",
-            "Stablecoin": "USDC",
-            "APY (%)": 12.0,
-            "Operación": "Crypto / USD",
-            "Red / Info": "Savings Account",
-        },
-        {
             "Plataforma": "Nexo",
             "Stablecoin": "USDT",
             "APY (%)": 10.0,
-            "Operación": "Crypto / USD",
-            "Red / Info": "Nexo Earn Flexible",
-        },
-        {
-            "Plataforma": "Nexo",
-            "Stablecoin": "USDC",
-            "APY (%)": 10.0,
-            "Operación": "Crypto / USD",
-            "Red / Info": "Nexo Earn Flexible",
-        },
-        {
-            "Plataforma": "Nexo",
-            "Stablecoin": "DAI",
-            "APY (%)": 9.0,
             "Operación": "Crypto / USD",
             "Red / Info": "Nexo Earn Flexible",
         },
@@ -215,14 +215,14 @@ with col1:
 with col2:
     st.metric(
         label="🌐 Plataformas monitoreadas",
-        value="9 Exchanges / Fintechs",
-        delta="Nivel Local & Global P2P",
+        value="12 Fintechs & Exchanges",
+        delta="Cobertura completa ARS / USD",
     )
 
 st.markdown("---")
 st.subheader("🏆 Ranking General de Rendimientos (Mejor a Peor)")
 
-# Visualización interactiva
+# Visualización interactiva de la lista completa
 st.dataframe(
     df_sorted.style.highlight_max(subset=["APY (%)"], color="#d4edda"),
     use_container_width=True,
@@ -234,7 +234,7 @@ st.dataframe(
 )
 
 st.info(
-    "💡 **Operativa en Argentina:** Las plataformas como Binance, Bitget y"
-    " BingX permiten ingresar pesos argentinos (ARS) mediante sus mercados P2P"
-    " oficiales con acreditación en cuentas bancarias locales (CVU/CBU)."
+    "💡 **Nota sobre Fintechs argentinas:** Plataformas como Buenbit, Ripio,"
+    " Belo y Lemon permiten transferir pesos directamente mediante CVU local y"
+    " acreditación inmediata para empezar a generar rendimientos pasivos."
 )
