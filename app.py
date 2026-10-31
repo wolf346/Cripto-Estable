@@ -1,8 +1,8 @@
 import re
-import requests
-from bs4 import BeautifulSoup
 import pandas as pd
+import requests
 import streamlit as st
+from bs4 import BeautifulSoup
 
 # Configuración de la página
 st.set_page_config(
@@ -23,7 +23,6 @@ def obtener_tasas_belo_oficiales():
 
     para obtener los porcentajes de rendimiento (APY) actualizados en tiempo real.
     """
-    # Valores base por si falla la conexión
     tasas_dict = {
         "ARGt": {"APY (%)": 32.0, "Red / Info": "Peso Argt (Pegged ARS)"},
         "USDT": {
@@ -35,7 +34,6 @@ def obtener_tasas_belo_oficiales():
     }
 
     try:
-        # Petición HTTP simulando un navegador estándar
         headers = {
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
@@ -49,7 +47,6 @@ def obtener_tasas_belo_oficiales():
             soup = BeautifulSoup(response.text, "html.parser")
             texto_pagina = soup.get_text()
 
-            # Buscar patrón de porcentaje asociado a USDT (ej: "10%" o "10,0%")
             match_usdt = re.search(
                 r"USDT[^\n%]*?(\d+(?:[.,]\d+)?)\s*%", texto_pagina, re.IGNORECASE
             )
@@ -57,7 +54,6 @@ def obtener_tasas_belo_oficiales():
                 val = float(match_usdt.group(1).replace(",", "."))
                 tasas_dict["USDT"]["APY (%)"] = val
 
-            # Buscar patrón de porcentaje asociado a ARGt
             match_argt = re.search(
                 r"ARGt[^\n%]*?(\d+(?:[.,]\d+)?)\s*%", texto_pagina, re.IGNORECASE
             )
@@ -65,10 +61,8 @@ def obtener_tasas_belo_oficiales():
                 val = float(match_argt.group(1).replace(",", "."))
                 tasas_dict["ARGt"]["APY (%)"] = val
     except Exception:
-        # Si ocurre un error de conexión, mantiene los valores por defecto
         pass
 
-    # Convertir el diccionario a DataFrame para procesarlo
     lista_datos = []
     for coin, info in tasas_dict.items():
         lista_datos.append(
@@ -82,10 +76,10 @@ def obtener_tasas_belo_oficiales():
     return pd.DataFrame(lista_datos)
 
 
-# Cargar y ordenar datos (Mejor opción a Peor opción)
+# Cargar y ordenar datos (Mejor a peor)
 df = obtener_tasas_belo_oficiales()
 df_sorted = df.sort_values(by="APY (%)", ascending=False).reset_index(drop=True)
-df_sorted.index += 1  # Iniciar ranking en 1
+df_sorted.index += 1
 
 # Métricas principales
 col1, col2 = st.columns(2)
@@ -106,7 +100,6 @@ with col2:
 st.markdown("---")
 st.subheader("🏆 Ranking de Rendimiento (De mejor a peor)")
 
-# Mostrar tabla interactiva ordenada
 st.dataframe(
     df_sorted.style.highlight_max(subset=["APY (%)"], color="#d4edda"),
     use_container_width=True,
@@ -122,7 +115,3 @@ st.info(
     " y detecta cambios en las tasas promocionales (como el 10% en USDT) sin"
     " requerir intervención manual."
 )
-    }
-)
-
-st.info("💡 **Nota de actualización:** Las tasas de stablecoins son variables según las condiciones del mercado. El script fuerza la re-evaluación del ranking cada día a las 08:00 AM.")
