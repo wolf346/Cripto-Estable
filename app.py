@@ -3,24 +3,46 @@ import streamlit as st
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Rendimientos Stablecoins Argentina",
+    page_title="Rendimientos Stablecoins y Billeteras Argentina",
     page_icon="📈",
     layout="centered",
 )
 
 st.title("📊 Ranking General de Rentabilidad (Fintechs Argentina)")
 st.caption(
-    "Comparativa de APY en Belo, Lemon, Buenbit, Ripio, Decrypto, Bitso, SatoshiTango, Binance, Bitget, BingX, Nexo y YouHodler"
+    "Comparativa de APY/TNA en Mercado Pago, Personal Pay, Naranja X, Belo, Lemon, Buenbit, Ripio, Decrypto, Bitso, SatoshiTango, Binance, Bitget, BingX, Nexo y YouHodler"
 )
 
 
 @st.cache_data(ttl=3600)
 def obtener_datos_completos():
-    """Consolida las tasas de rendimiento (APY) de las plataformas locales e
+    """Consolida las tasas de rendimiento (APY / TNA) de billeteras virtuales,
 
-    internacionales que operan en Argentina.
+    plataformas locales e internacionales que operan en Argentina.
     """
     datos = [
+        # --- BILLETERAS VIRTUALES Y CUENTAS REMUNERADAS (PESOS ARS) ---
+        {
+            "Plataforma": "Naranja X",
+            "Stablecoin": "Pesos (ARS)",
+            "APY (%)": 38.0,  # TNA estimada de cuenta remunerada (con tope de saldo según plataforma)
+            "Operación": "Pesos (ARS)",
+            "Red / Info": "Cuenta Remunerada ARS (FCI / TNA)",
+        },
+        {
+            "Plataforma": "Personal Pay",
+            "Stablecoin": "Pesos (ARS)",
+            "APY (%)": 37.0,  # TNA estimada (variable según nivel de consumo del usuario)
+            "Operación": "Pesos (ARS)",
+            "Red / Info": "Cuenta Remunerada ARS (FCI Delta / TNA)",
+        },
+        {
+            "Plataforma": "Mercado Pago",
+            "Stablecoin": "Pesos (ARS)",
+            "APY (%)": 36.5,  # TNA estimada del FCI BIND
+            "Operación": "Pesos (ARS)",
+            "Red / Info": "Fondo Común de Inversión BIND (TNA)",
+        },
         # --- NUEVAS INCORPORACIONES (BUENBIT, RIPIO, DECRYPTO) ---
         {
             "Plataforma": "Buenbit",
@@ -210,12 +232,12 @@ with col1:
     st.metric(
         label="🥇 Líder del Ranking",
         value=f"{best['Plataforma']} ({best['Stablecoin']})",
-        delta=f"{best['APY (%)']}% APY",
+        delta=f"{best['APY (%)']}% APY/TNA",
     )
 with col2:
     st.metric(
         label="🌐 Plataformas monitoreadas",
-        value="12 Fintechs & Exchanges",
+        value=f"{len(df['Plataforma'].unique())} Billeteras & Exchanges",
         delta="Cobertura completa ARS / USD",
     )
 
@@ -228,13 +250,14 @@ st.dataframe(
     use_container_width=True,
     column_config={
         "APY (%)": st.column_config.NumberColumn(
-            "Rendimiento Anual (APY)", format="%.2f %%"
+            "Rendimiento Anual (APY / TNA)", format="%.2f %%"
         )
     },
 )
 
 st.info(
-    "💡 **Nota sobre Fintechs argentinas:** Plataformas como Buenbit, Ripio,"
-    " Belo y Lemon permiten transferir pesos directamente mediante CVU local y"
-    " acreditación inmediata para empezar a generar rendimientos pasivos."
+    "💡 **Nota sobre Cuentas Remuneradas y Fintechs:** Billeteras virtuales como"
+    " Mercado Pago, Personal Pay y Naranja X rinden sobre saldos en pesos"
+    " mediante Fondos Comunes de Inversión (FCI) con liquidez 24/7. Ajusta los"
+    " valores de porcentaje según las tasas diarias del mercado argentino."
 )
