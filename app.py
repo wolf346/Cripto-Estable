@@ -4,239 +4,256 @@ import streamlit as st
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-# =========================================================
+# ==========================================================
 # CONFIGURACIÓN
-# =========================================================
+# ==========================================================
 
 st.set_page_config(
-    page_title="Comparador de Rendimientos Argentina",
+    page_title="Rendimientos Fintech Argentina",
     page_icon="📈",
     layout="wide",
 )
 
-st.title("📊 Comparador de Rendimientos Financieros")
+st.title("📈 Ranking de Rendimientos Fintech Argentina")
+
 st.caption(
-    "Argentina | Billeteras virtuales, stablecoins y exchanges"
+    "Comparador de billeteras virtuales, stablecoins y "
+    "plataformas de inversión."
 )
+
+# ==========================================================
+# AVISO IMPORTANTE
+# ==========================================================
 
 st.warning(
-    "Las tasas cargadas son referencias manuales del código original. "
-    "No se consideran tasas actuales verificadas. Antes de invertir, "
-    "comprobá la tasa, las condiciones y la disponibilidad en la "
-    "plataforma correspondiente."
+    "Las tasas de esta versión provienen de valores cargados "
+    "manualmente. No están verificadas en tiempo real y no "
+    "deben interpretarse como ofertas vigentes. Consultá las "
+    "condiciones de cada plataforma antes de invertir."
 )
 
-# =========================================================
+# ==========================================================
 # DATOS
-# =========================================================
-# tasa_pct: porcentaje anual informado en el código original.
-# tipo_tasa: dejar como 'Pendiente' hasta comprobar si es TNA,
-# TEA, APY o APR.
-# verificada: False hasta comprobar la tasa en una fuente fiable.
+# ==========================================================
+# Las tasas son las del script original del usuario.
+# No se afirma que estén vigentes.
 #
-# IMPORTANTE:
-# No se debe interpretar una tasa pendiente como vigente.
+# "Tipo de tasa" se deja como "Sin verificar" porque no se
+# comprobó si cada valor corresponde a TNA, TEA, APY o APR.
+#
+# La fecha de consulta de la aplicación NO es la fecha de
+# verificación de las tasas.
 
 DATOS = [
-    # Plataforma, activo, categoría, tasa, tipo de tasa
-    ("Personal Pay", "ARS", "Pesos", 21.0, "Pendiente"),
-    ("Naranja X", "ARS", "Pesos", 19.5, "Pendiente"),
-    ("Mercado Pago", "ARS", "Pesos", 19.0, "Pendiente"),
-
-    ("Buenbit", "USDT", "Stablecoin USD", 8.5, "Pendiente"),
-    ("Buenbit", "USDC", "Stablecoin USD", 8.0, "Pendiente"),
-    ("Buenbit", "nuARS", "Stablecoin ARS", 25.0, "Pendiente"),
-
-    ("Ripio", "UXD", "Stablecoin USD", 10.0, "Pendiente"),
-    ("Ripio", "USDT", "Stablecoin USD", 6.0, "Pendiente"),
-
-    ("Decrypto", "USDT", "Stablecoin USD", 7.5, "Pendiente"),
-    ("Decrypto", "USDC", "Stablecoin USD", 7.0, "Pendiente"),
-
-    ("Belo", "ARGt", "Stablecoin ARS", 32.0, "Pendiente"),
-    ("Belo", "USDT", "Stablecoin USD", 10.0, "Pendiente"),
-    ("Belo", "USDC", "Stablecoin USD", 6.0, "Pendiente"),
-    ("Belo", "DAI", "Stablecoin USD", 4.0, "Pendiente"),
-
-    ("Lemon", "USDT", "Stablecoin USD", 7.0, "Pendiente"),
-    ("Lemon", "USDC", "Stablecoin USD", 6.5, "Pendiente"),
-    ("Lemon", "DAI", "Stablecoin USD", 4.5, "Pendiente"),
-
-    ("Bitso", "USDT", "Stablecoin USD", 3.5, "Pendiente"),
-    ("Bitso", "USDC", "Stablecoin USD", 3.5, "Pendiente"),
-    ("Bitso", "DAI", "Stablecoin USD", 3.0, "Pendiente"),
-
-    ("SatoshiTango", "USDC", "Stablecoin USD", 4.0, "Pendiente"),
-    ("SatoshiTango", "USDT", "Stablecoin USD", 4.0, "Pendiente"),
-
-    ("Bitget", "USDT", "Stablecoin USD", 9.0, "Pendiente"),
-    ("Binance", "USDT", "Stablecoin USD", 8.5, "Pendiente"),
-    ("BingX", "USDT", "Stablecoin USD", 8.0, "Pendiente"),
-
-    ("YouHodler", "USDT", "Stablecoin USD", 12.0, "Pendiente"),
-    ("Nexo", "USDT", "Stablecoin USD", 10.0, "Pendiente"),
-]
-
-COLUMNAS = [
-    "Plataforma",
-    "Activo",
-    "Categoría",
-    "Tasa (%)",
-    "Tipo de tasa",
-    "Verificada",
-    "Fecha de verificación",
-    "Fuente oficial",
-    "Condiciones",
-]
-
-# Se crea la tabla sin atribuirle actualidad a los valores.
-df = pd.DataFrame(
-    DATOS,
-    columns=[
-        "Plataforma",
-        "Activo",
-        "Categoría",
-        "Tasa (%)",
-        "Tipo de tasa",
-    ],
-)
-
-df["Verificada"] = False
-df["Fecha de verificación"] = None
-df["Fuente oficial"] = ""
-df["Condiciones"] = "Pendiente de comprobar"
-
-# =========================================================
-# ENCABEZADO Y MÉTRICAS
-# =========================================================
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.metric(
-        "Plataformas incluidas",
-        df["Plataforma"].nunique(),
-    )
-
-with col2:
-    st.metric(
-        "Productos registrados",
-        len(df),
-    )
-
-with col3:
-    st.metric(
-        "Tasas verificadas",
-        int(df["Verificada"].sum()),
-    )
-
-st.caption(
-    "Fecha y hora de consulta: "
-    + datetime.now(
-        ZoneInfo("America/Argentina/Buenos_Aires")
-    ).strftime("%d/%m/%Y %H:%M")
-)
-
-st.divider()
-
-# =========================================================
-# FILTROS
-# =========================================================
-
-st.subheader("🔎 Filtrar productos")
-
-f1, f2, f3 = st.columns(3)
-
-with f1:
-    categorias = ["Todas"] + sorted(df["Categoría"].unique())
-    categoria = st.selectbox("Tipo de activo", categorias)
-
-with f2:
-    plataformas = ["Todas"] + sorted(df["Plataforma"].unique())
-    plataforma = st.selectbox("Plataforma", plataformas)
-
-with f3:
-    estados = ["Todos", "Verificados", "No verificados"]
-    estado = st.selectbox("Estado de la tasa", estados)
-
-filtrado = df.copy()
-
-if categoria != "Todas":
-    filtrado = filtrado[filtrado["Categoría"] == categoria]
-
-if plataforma != "Todas":
-    filtrado = filtrado[filtrado["Plataforma"] == plataforma]
-
-if estado == "Verificados":
-    filtrado = filtrado[filtrado["Verificada"] == True]
-elif estado == "No verificados":
-    filtrado = filtrado[filtrado["Verificada"] == False]
-
-# =========================================================
-# RANKING
-# =========================================================
-
-st.subheader("🏆 Ranking de rendimientos")
-
-st.info(
-    "El ranking solo ordena los porcentajes cargados. "
-    "Una tasa pendiente de verificación no representa una "
-    "oferta vigente ni una recomendación de inversión."
-)
-
-# Los productos se ordenan por tasa, pero el estado de
-# verificación permanece visible en la tabla.
-filtrado = filtrado.sort_values(
-    "Tasa (%)",
-    ascending=False,
-    na_position="last",
-).reset_index(drop=True)
-
-filtrado.insert(0, "Puesto", range(1, len(filtrado) + 1))
-
-st.dataframe(
-    filtrado,
-    use_container_width=True,
-    hide_index=True,
-    column_config={
-        "Tasa (%)": st.column_config.NumberColumn(
-            "Tasa anual informada (%)",
-            format="%.2f%%",
-        ),
-        "Verificada": st.column_config.CheckboxColumn(
-            "Tasa verificada",
-        ),
-        "Fuente oficial": st.column_config.LinkColumn(
-            "Consultar fuente",
-            display_text="Abrir fuente",
-        ),
+    {
+        "Plataforma": "Personal Pay",
+        "Activo": "ARS",
+        "Categoría": "Cuenta remunerada en pesos",
+        "Tasa (%)": 21.0,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www.personalpay.com.ar/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Pendientes de comprobar",
     },
-)
-
-# =========================================================
-# EXPLICACIÓN
-# =========================================================
-
-with st.expander("📘 Cómo interpretar las tasas"):
-    st.markdown(
-        """
-        - **TNA:** tasa nominal anual. No equivale necesariamente
-          al rendimiento efectivo anual.
-        - **TEA:** tasa efectiva anual, que contempla la
-          capitalización según sus condiciones de cálculo.
-        - **APY:** rendimiento anual efectivo, normalmente
-          expresado considerando la capitalización.
-        - **APR:** tasa anualizada que no necesariamente incluye
-          capitalización.
-        - **Verificada:** indica que la tasa fue comprobada en
-          una fuente identificable y en una fecha determinada.
-        - **Riesgo:** una tasa elevada no garantiza que se pueda
-          recuperar el capital ni que el activo conserve su valor.
-        """
-    )
-
-st.caption(
-    "Este comparador es informativo. No constituye asesoramiento "
-    "financiero. Las tasas, condiciones y riesgos pueden cambiar."
-)
-```
+    {
+        "Plataforma": "Naranja X",
+        "Activo": "ARS",
+        "Categoría": "Cuenta remunerada en pesos",
+        "Tasa (%)": 19.5,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www.naranjax.com/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Pendientes de comprobar",
+    },
+    {
+        "Plataforma": "Mercado Pago",
+        "Activo": "ARS",
+        "Categoría": "FCI en pesos",
+        "Tasa (%)": 19.0,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www.mercadopago.com.ar/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Rendimiento variable; consultar el fondo",
+    },
+    {
+        "Plataforma": "Buenbit",
+        "Activo": "USDT",
+        "Categoría": "Criptoactivo vinculado al dólar",
+        "Tasa (%)": 8.5,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www.buenbit.com/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Pendientes de comprobar",
+    },
+    {
+        "Plataforma": "Buenbit",
+        "Activo": "USDC",
+        "Categoría": "Criptoactivo vinculado al dólar",
+        "Tasa (%)": 8.0,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www.buenbit.com/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Pendientes de comprobar",
+    },
+    {
+        "Plataforma": "Buenbit",
+        "Activo": "nuARS",
+        "Categoría": "Criptoactivo vinculado al peso",
+        "Tasa (%)": 25.0,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www.buenbit.com/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Pendientes de comprobar",
+    },
+    {
+        "Plataforma": "Ripio",
+        "Activo": "UXD",
+        "Categoría": "Criptoactivo; vinculación por comprobar",
+        "Tasa (%)": 10.0,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www.ripio.com/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Verificar activo y producto",
+    },
+    {
+        "Plataforma": "Ripio",
+        "Activo": "USDT",
+        "Categoría": "Criptoactivo vinculado al dólar",
+        "Tasa (%)": 6.0,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www.ripio.com/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Pendientes de comprobar",
+    },
+    {
+        "Plataforma": "Decrypto",
+        "Activo": "USDT",
+        "Categoría": "Criptoactivo vinculado al dólar",
+        "Tasa (%)": 7.5,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www.decrypto.la/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Pendientes de comprobar",
+    },
+    {
+        "Plataforma": "Decrypto",
+        "Activo": "USDC",
+        "Categoría": "Criptoactivo vinculado al dólar",
+        "Tasa (%)": 7.0,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www.decrypto.la/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Pendientes de comprobar",
+    },
+    {
+        "Plataforma": "Belo",
+        "Activo": "ARGt",
+        "Categoría": "Criptoactivo vinculado al peso",
+        "Tasa (%)": 32.0,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www belo.app/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Verificar activo, tasa y disponibilidad",
+    },
+    {
+        "Plataforma": "Belo",
+        "Activo": "USDT",
+        "Categoría": "Criptoactivo vinculado al dólar",
+        "Tasa (%)": 10.0,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www belo.app/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Verificar promoción y requisitos",
+    },
+    {
+        "Plataforma": "Belo",
+        "Activo": "USDC",
+        "Categoría": "Criptoactivo vinculado al dólar",
+        "Tasa (%)": 6.0,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www belo.app/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Pendientes de comprobar",
+    },
+    {
+        "Plataforma": "Belo",
+        "Activo": "DAI",
+        "Categoría": "Criptoactivo vinculado al dólar",
+        "Tasa (%)": 4.0,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://www belo.app/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Pendientes de comprobar",
+    },
+    {
+        "Plataforma": "Lemon",
+        "Activo": "USDT",
+        "Categoría": "Criptoactivo vinculado al dólar",
+        "Tasa (%)": 7.0,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://lemon.me/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Verificar producto y periodicidad",
+    },
+    {
+        "Plataforma": "Lemon",
+        "Activo": "USDC",
+        "Categoría": "Criptoactivo vinculado al dólar",
+        "Tasa (%)": 6.5,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://lemon.me/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Pendientes de comprobar",
+    },
+    {
+        "Plataforma": "Lemon",
+        "Activo": "DAI",
+        "Categoría": "Criptoactivo vinculado al dólar",
+        "Tasa (%)": 4.5,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://lemon.me/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Pendientes de comprobar",
+    },
+    {
+        "Plataforma": "Bitso",
+        "Activo": "USDT",
+        "Categoría": "Criptoactivo vinculado al dólar",
+        "Tasa (%)": 3.5,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://bitso.com/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Verificar disponibilidad regional",
+    },
+    {
+        "Plataforma": "Bitso",
+        "Activo": "USDC",
+        "Categoría": "Criptoactivo vinculado al dólar",
+        "Tasa (%)": 3.5,
+        "Tipo de tasa": "Sin verificar",
+        "Fuente oficial": "https://bitso.com/",
+        "Verificada": False,
+        "Fecha de verificación": None,
+        "Condiciones": "Verificar disponibilidad regional",
+    },
+    {
+        "Plataforma": "Bitso",
+        "Activo": "DA
